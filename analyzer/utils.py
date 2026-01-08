@@ -1,13 +1,21 @@
-import matplotlib.pyplot as plt
+"""
+Utility functions for text complexity analysis using Pandas and Matplotlib.
+"""
 import base64
 from io import BytesIO
+import matplotlib.pyplot as plt
 import pandas as pd
-from collections import Counter
 
 
 def analyze_text_complexity(text):
     """
     Analyzes text and returns stats and a base64 encoded plot.
+
+    Args:
+        text (str): The text content to analyze.
+
+    Returns:
+        tuple: (word_count, sentence_count, graphic_base64)
     """
     if not text:
         return 0, 0, None
@@ -47,3 +55,4 @@ def analyze_text_complexity(text):
     graphic = base64.b64encode(image_png).decode("utf-8")
 
     return word_count, sentence_count, graphic
+
