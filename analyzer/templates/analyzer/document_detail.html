@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row mb-3">
+    <div class="col-12">
+        <a href="{% url 'document_list' %}" class="btn btn-outline-secondary">&larr; Back to List</a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h2 class="card-title">{{ object.title }}</h2>
+                <div class="mb-3">
+                    <span class="badge bg-primary">{{ object.category.name }}</span>
+                    {% for tag in object.tags.all %}
+                    <span class="badge bg-info text-dark">{{ tag.name }}</span>
+                    {% endfor %}
+                    <span class="text-muted ms-2">{{ object.created_at|date:"F d, Y H:i" }}</span>
+                </div>
+                <hr>
+                <div class="card-text">
+                    {{ object.content|linebreaks }}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Analysis Results</h5>
+            </div>
+            <div class="card-body">
+                <!-- Placeholder for Phase 4 complexity module -->
+                <p><strong>Word Count:</strong> {{ word_count }}</p>
+                <p><strong>Sentence Count:</strong> {{ sentence_count }}</p>
+                <hr>
+                <h6>Complexity Chart</h6>
+                {% if graph %}
+                    <img src="data:image/png;base64,{{ graph }}" class="img-fluid" alt="Complexity Analysis">
+                {% else %}
+                    <p class="text-muted">Graph unavailable</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
