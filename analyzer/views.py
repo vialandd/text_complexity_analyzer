@@ -3,6 +3,8 @@ Views for handling text document listing, detail, and creation.
 """
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
+from django.core.paginator import Paginator
+from django.views.decorators.cache import cache_page
 from .models import TextDocument
 from .forms import TextDocumentForm
 from .utils import analyze_text_complexity
@@ -10,12 +12,19 @@ from .utils import analyze_text_complexity
 
 def document_list(request):
     """
-    Display a list of all text documents.
+    Display a list of all text documents with pagination.
     """
-    documents = TextDocument.objects.all().order_by("-created_at")
-    return render(request, "analyzer/document_list.html", {"documents": documents})
+    documents_list = TextDocument.objects.all().order_by("-created_at")
+    paginator = Paginator(documents_list, 6) # Show 6 documents per page
+
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, "analyzer/document_list.html", {"page_obj": page_obj})
 
 
+# Cache the analysis result for 15 minutes to improve performance
+@cache_page(60 * 15)
 def document_detail(request, pk):
     """
     Display details of a single text document and its complexity analysis.
@@ -23,15 +32,14 @@ def document_detail(request, pk):
     document = get_object_or_404(TextDocument, pk=pk)
 
     # Phase 4: Integration of Complexity Module
-    word_count, sentence_count, graph = analyze_text_complexity(document.content)
+    analysis_stats = analyze_text_complexity(document.content)
 
     context = {
         "object": document,
-        "word_count": word_count,
-        "sentence_count": sentence_count,
-        "graph": graph,
+        "metrics": analysis_stats, # Pass the entire dict
     }
     return render(request, "analyzer/document_detail.html", context)
+
 
 
 def document_create(request):

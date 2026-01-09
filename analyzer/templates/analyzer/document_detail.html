@@ -33,17 +33,45 @@
                 <h5 class="mb-0">Analysis Results</h5>
             </div>
             <div class="card-body">
-                <!-- Placeholder for Phase 4 complexity module -->
-                <p><strong>Word Count:</strong> {{ word_count }}</p>
-                <p><strong>Sentence Count:</strong> {{ sentence_count }}</p>
+                <h6 class="border-bottom pb-2">Basic Counters</h6>
+                <div class="d-flex justify-content-between">
+                    <span>Word Count:</span>
+                    <strong>{{ metrics.word_count }}</strong>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>Sentence Count:</span>
+                    <strong>{{ metrics.sentence_count }}</strong>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>Consonants:</span>
+                    <strong>{{ metrics.consonant_count }}</strong>
+                </div>
+
+                <h6 class="border-bottom pb-2 mt-3">Complexity Scoring</h6>
+                <div class="mb-2">
+                    <small>Flesch Reading Ease:</small>
+                    <div class="progress" style="height: 20px;">
+                        <div class="progress-bar bg-info" role="progressbar" style="width: {{ metrics.flesch_score }}%;" aria-valuenow="{{ metrics.flesch_score }}" aria-valuemin="0" aria-valuemax="100">{{ metrics.flesch_score }}</div>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>Lexical Diversity:</span>
+                    <span title="Unique Words / Total Words">{{ metrics.lexical_diversity }}</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>Rare Word Ratio:</span>
+                    <span title="Non-stopwords / Total Words">{{ metrics.rare_word_ratio }}</span>
+                </div>
+
                 <hr>
-                <h6>Complexity Chart</h6>
-                {% if graph %}
-                    <img src="data:image/png;base64,{{ graph }}" class="img-fluid" alt="Complexity Analysis">
+                <h6>Length Distribution</h6>
+                {% if metrics.graph %}
+                    <img src="data:image/png;base64,{{ metrics.graph }}" class="img-fluid" alt="Complexity Analysis">
                 {% else %}
                     <p class="text-muted">Graph unavailable</p>
                 {% endif %}
             </div>
+
         </div>
     </div>
 </div>
