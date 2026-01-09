@@ -3,12 +3,14 @@ Utility functions for text complexity analysis using Pandas and Matplotlib.
 """
 import base64
 from io import BytesIO
+import matplotlib
+matplotlib.use('Agg') # Set backend before importing pyplot
 import matplotlib.pyplot as plt
 import pandas as pd
 import textstat
 import nltk
 from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize, sentinel_tokenize
+from nltk.tokenize import word_tokenize, sent_tokenize
 
 # Ensure NLTK data is available
 try:
@@ -36,7 +38,7 @@ def analyze_text_complexity(text):
     # Tokenization
     try:
         words = word_tokenize(text)
-        sentences = sentinel_tokenize(text)
+        sentences = sent_tokenize(text)
     except LookupError:
         # Fallback if NLTK fails for some reason
         words = text.split()
