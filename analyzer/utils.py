@@ -107,19 +107,73 @@ def analyze_text_complexity(text):
     else:
         avg_jaccard = 1.0
 
-    # Sentence Highlighting
+    # Sentence Highlighting & Complexity Scope
     highlighted_sentences = []
+    
+    # Identify frequent words for highlighting (Top 5 non-stopwords, count > 1)
+    if alpha_words:
+        word_counts = Counter(w for w in alpha_words if w not in stop_words)
+        # set of top words for O(1) lookup
+        top_words_set = {word for word, count in word_counts.most_common(5) if count > 1}
+    else:
+        top_words_set = set()
+
+    max_sent_len = max(len(word_tokenize(s)) for s in sentences) if sentences else 1
+
     for sent in sentences:
-        sent_words = [w for w in word_tokenize(sent) if w.isalpha()]
-        is_hard = False
-        if len(sent_words) > 20:
-            is_hard = True
-        else:
-            complex_in_sent = sum(1 for w in sent_words if len(w) > 6)
-            if complex_in_sent > 3:
-                is_hard = True
+        sent_tokens = word_tokenize(sent)
+        sent_words_alpha = [w.lower() for w in sent_tokens if w.isalpha()]
+        sent_len = len(sent_words_alpha)
         
-        highlighted_sentences.append({'text': sent, 'is_hard': is_hard})
+        # Calculate Complexity Score (0.0 to 1.0)
+        # Factors: Length (>20 is hard), Complex words (>6 chars)
+        complex_count = sum(1 for w in sent_words_alpha if len(w) > 6)
+        
+        # Heuristic: 
+        # Length score: 20 words = 0.5
+        # Compexity score: 4 complex words = 0.5
+        len_score = min(sent_len / 30, 0.6)
+        comp_score = min(complex_count / 8, 0.4)
+        
+        total_score = len_score + comp_score
+        # Cap opacity at 0.6 to keep text readable
+        opacity = min(total_score, 0.6) 
+        # Normalize to 0 if very simple
+        if sent_len < 8 and complex_count < 2:
+            opacity = 0
+
+        # Highlight frequent words within the sentence string
+        # We assume standard spacing for simplicity in reconstruction or just replace tokens
+        # A safer way to preserve punctuation is iterating tokens
+        formatted_sent = []
+        for token in sent_tokens:
+            if token.lower() in top_words_set:
+                formatted_sent.append(f"<strong class='text-primary' title='Frequent word'>{token}</strong>")
+            else:
+                formatted_sent.append(token)
+        
+        # Reconstruct roughly (NLTK doesn't perfectly reconstruct, but this is a visualization tool)
+        # Using a simple join is often 'good enough' for analysis view, 
+        # or we could use the original text slicing if we had offsets.
+        # For simplicity/robustness here, we'll join with spaces and fix puntuation manually if needed,
+        # or simplified: just trust space joining for the 'visual' representation.
+        # NLTK's TreebankWordDetokenizer is better if available (downloaded?). 
+        # Let's try simple join but handles punctuation naively.
+        
+        # Better approach: string replace on the original sentence segment? 
+        # Risk of matching substrings.
+        # Let's stick to token join for the visual highlighting, even if perfect spacing is lost.
+        from nltk.tokenize.treebank import TreebankWordDetokenizer
+        try:
+            display_text = TreebankWordDetokenizer().detokenize(formatted_sent)
+        except:
+            display_text = " ".join(formatted_sent)
+
+        highlighted_sentences.append({
+            'text': display_text,
+            'complexity_score': round(total_score * 10, 1), # 0-10 scale for tooltip
+            'opacity': round(opacity, 2)
+        })
 
     # --- 3. Lexical Structure ---
     # Diversity & Rare Words
