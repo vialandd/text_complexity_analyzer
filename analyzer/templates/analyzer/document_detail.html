@@ -8,7 +8,8 @@
 </div>
 
 <div class="row">
-    <div class="col-lg-8">
+    <!-- Main Text Column -->
+    <div class="col-lg-7">
         <div class="card mb-4">
             <div class="card-body">
                 <h2 class="card-title">{{ object.title }}</h2>
@@ -19,79 +20,172 @@
                     {% endfor %}
                     <span class="text-muted ms-2">{{ object.created_at|date:"F d, Y H:i" }}</span>
                 </div>
-                <hr>
-                <div class="card-text">
-                    <p class="mb-2 text-muted"><small>Highlighted sentences are considered complex (>20 words or many long words).</small></p>
-                    <div style="line-height: 1.8;">
-                        {% for item in metrics.highlighted_sentences %}
-                            {% if item.is_hard %}
-                                <span class="bg-warning bg-opacity-25 border-bottom border-warning">{{ item.text }}</span>
-                            {% else %}
-                                <span>{{ item.text }}</span>
-                            {% endif %}
-                        {% endfor %}
-                    </div>
+                
+                <h6 class="mt-4">Analyzed Text Content</h6>
+                <div class="card-text border p-3 bg-light rounded" style="line-height: 1.8;">
+                    {% for item in metrics.reading.highlighted_sentences %}
+                        {% if item.is_hard %}
+                            <span class="bg-warning bg-opacity-25 border-bottom border-warning" title="Complex sentence">{{ item.text }}</span>
+                        {% else %}
+                            <span>{{ item.text }}</span>
+                        {% endif %}
+                    {% endfor %}
                 </div>
+                <p class="text-muted mt-2"><small>* Highlighted areas indicate potentially complex sentences (>20 words or high density of long words).</small></p>
             </div>
         </div>
     </div>
     
-    <div class="col-lg-4">
+    <!-- Analysis Tabs Column -->
+    <div class="col-lg-5">
         <div class="card mb-4">
-            <div class="card-header bg-success text-white">
-                <h5 class="mb-0">Analysis Results</h5>
+            <div class="card-header bg-dark text-white p-2">
+                <ul class="nav nav-tabs card-header-tabs" id="analysisTabs" role="tablist">
+                    <li class="nav-item">
+                        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#general" type="button">General</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#reading" type="button">Reading</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lexical" type="button">Lexical</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#advanced" type="button">Nerd Stats</button>
+                    </li>
+                </ul>
             </div>
+            
             <div class="card-body">
-                <h6 class="border-bottom pb-2">Basic Counters</h6>
-                <div class="d-flex justify-content-between">
-                    <span>Word Count:</span>
-                    <strong>{{ metrics.word_count }}</strong>
-                </div>
-                <div class="d-flex justify-content-between">
-                    <span>Sentence Count:</span>
-                    <strong>{{ metrics.sentence_count }}</strong>
-                </div>
-                <div class="d-flex justify-content-between">
-                    <span>Avg. Consonants/Word:</span>
-                    <strong>{{ metrics.avg_consonants }}</strong>
-                </div>
-
-                <h6 class="border-bottom pb-2 mt-3">Linguistic Structure</h6>
-                <div class="d-flex justify-content-between">
-                    <span>Content Words Ratio:</span>
-                    <span title="Ratio of Nouns/Verbs/Adj/Adv">{{ metrics.content_ratio }}</span>
-                </div>
-                {% if metrics.pos_graph %}
-                    <div class="text-center mt-2">
-                        <img src="data:image/png;base64,{{ metrics.pos_graph }}" class="img-fluid" style="max-height: 150px;" alt="POS Distribution">
+                <div class="tab-content">
+                    
+                    <!-- 1. General Tab -->
+                    <div class="tab-pane fade show active" id="general">
+                        <h6 class="border-bottom pb-2">Basic Counters</h6>
+                        <ul class="list-group list-group-flush mb-3">
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>Word Count</span>
+                                <strong>{{ metrics.general.word_count }}</strong>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>Sentence Count</span>
+                                <strong>{{ metrics.general.sentence_count }}</strong>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>Consonants/Word</span>
+                                <strong>{{ metrics.general.avg_consonants }}</strong>
+                            </li>
+                        </ul>
+                        
+                        <h6 class="border-bottom pb-2">Sentiment Analysis (VADER)</h6>
+                        <div class="row text-center mt-2">
+                            <div class="col-4">
+                                <small class="d-block text-muted">Positive</small>
+                                <span class="text-success">{{ metrics.general.sentiment.pos }}</span>
+                            </div>
+                            <div class="col-4">
+                                <small class="d-block text-muted">Neutral</small>
+                                <span class="text-secondary">{{ metrics.general.sentiment.neu }}</span>
+                            </div>
+                            <div class="col-4">
+                                <small class="d-block text-muted">Negative</small>
+                                <span class="text-danger">{{ metrics.general.sentiment.neg }}</span>
+                            </div>
+                        </div>
+                        <div class="alert alert-secondary mt-2 text-center p-1">
+                            Compound Score: <strong>{{ metrics.general.sentiment.compound }}</strong>
+                        </div>
                     </div>
-                {% endif %}
 
-                <h6 class="border-bottom pb-2 mt-3">Complexity Scoring</h6>
-                <div class="mb-2">
-                    <small>Flesch Reading Ease:</small>
-                    <div class="progress" style="height: 20px;">
-                        <div class="progress-bar bg-info" role="progressbar" style="width: {{ metrics.flesch_score }}%;" aria-valuenow="{{ metrics.flesch_score }}" aria-valuemin="0" aria-valuemax="100">{{ metrics.flesch_score }}</div>
+                    <!-- 2. Reading Tab -->
+                    <div class="tab-pane fade" id="reading">
+                        <h6 class="border-bottom pb-2">Readability Scores</h6>
+                        <div class="mb-3">
+                            <label>Flesch Reading Ease</label>
+                            <div class="progress" style="height: 25px;">
+                                <div class="progress-bar bg-info" role="progressbar" 
+                                     style="width: {{ metrics.reading.flesch_score }}%;" 
+                                     aria-valuenow="{{ metrics.reading.flesch_score }}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100">
+                                    {{ metrics.reading.flesch_score }}
+                                </div>
+                            </div>
+                            <small class="text-muted">0-30: Very Confusing | 90-100: Very Easy</small>
+                        </div>
+
+                        <h6 class="border-bottom pb-2">Text Cohesion</h6>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Jaccard Index (Avg sentence overlap):</span>
+                            <strong>{{ metrics.reading.avg_jaccard }}</strong>
+                        </div>
+                        <small class="text-muted">Higher values indicate better flow between sentences (words repeating in adjacent sentences).</small>
                     </div>
-                </div>
-                <div class="d-flex justify-content-between">
-                    <span>Lexical Diversity:</span>
-                    <span title="Unique Words / Total Words">{{ metrics.lexical_diversity }}</span>
-                </div>
-                <div class="d-flex justify-content-between">
-                    <span>Rare Word Ratio:</span>
-                    <span title="Non-stopwords / Total Words">{{ metrics.rare_word_ratio }}</span>
-                </div>
 
-                <hr>
-                <h6>Length Distribution</h6>
-                {% if metrics.graph %}
-                    <img src="data:image/png;base64,{{ metrics.graph }}" class="img-fluid" alt="Complexity Analysis">
-                {% else %}
-                    <p class="text-muted">Graph unavailable</p>
-                {% endif %}
+                    <!-- 3. Lexical Tab -->
+                    <div class="tab-pane fade" id="lexical">
+                        <div class="row mb-3">
+                            <div class="col-6 text-center border-end">
+                                <h6>Lexical Diversity</h6>
+                                <h4 class="text-primary">{{ metrics.lexical.diversity }}</h4>
+                                <small>Unique words ratio</small>
+                            </div>
+                            <div class="col-6 text-center">
+                                <h6>Content Words</h6>
+                                <h4 class="text-primary">{{ metrics.lexical.content_ratio }}</h4>
+                                <small>Nouns/Verbs density</small>
+                            </div>
+                        </div>
+
+                        {% if metrics.lexical.pos_graph %}
+                            <h6 class="border-top pt-2">Part of Speech Distribution</h6>
+                            <img src="data:image/png;base64,{{ metrics.lexical.pos_graph }}" class="img-fluid rounded border mb-3" alt="POS Chart">
+                        {% endif %}
+
+                        {% if metrics.lexical.len_graph %}
+                            <h6 class="border-top pt-2">Word Length frequency</h6>
+                            <img src="data:image/png;base64,{{ metrics.lexical.len_graph }}" class="img-fluid rounded border" alt="Word Length Chart">
+                        {% endif %}
+                    </div>
+
+                    <!-- 4. Advanced Tab -->
+                    <div class="tab-pane fade" id="advanced">
+                        <h6 class="border-bottom pb-2">Frequent N-grams (Repeating > 1)</h6>
+                        <div class="row">
+                            <div class="col-6">
+                                <strong>Bigrams:</strong>
+                                <ul class="list-unstyled small">
+                                    {% for bg in metrics.advanced.bigrams %}
+                                        <li>• {{ bg }}</li>
+                                    {% empty %}
+                                        <li class="text-muted">None found</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            <div class="col-6">
+                                <strong>Trigrams:</strong>
+                                <ul class="list-unstyled small">
+                                    {% for tg in metrics.advanced.trigrams %}
+                                        <li>• {{ tg }}</li>
+                                    {% empty %}
+                                        <li class="text-muted">None found</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+
+                        <h6 class="border-bottom pb-2 mt-3">Named Entities Found</h6>
+                        <div class="d-flex flex-wrap gap-1">
+                            {% for entity in metrics.advanced.entities %}
+                                <span class="badge bg-secondary">{{ entity }}</span>
+                            {% empty %}
+                                <span class="text-muted small">No named entities detected.</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                </div>
             </div>
-
         </div>
     </div>
 </div>
