@@ -5,22 +5,40 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.views.decorators.cache import cache_page
-from .models import TextDocument
+from .models import TextDocument, Tag
 from .forms import TextDocumentForm
 from .utils import analyze_text_complexity
 
 
 def document_list(request):
     """
-    Display a list of all text documents with pagination.
+    Display a list of all text documents with pagination and filtering.
     """
-    documents_list = TextDocument.objects.all().order_by("-created_at")
-    paginator = Paginator(documents_list, 6) # Show 6 documents per page
+    queryset = TextDocument.objects.all().order_by("-created_at")
+    
+    # Search and Filter
+    search_query = request.GET.get('search', '')
+    tag_filter = request.GET.get('tag', '')
+
+    if search_query:
+        queryset = queryset.filter(title__icontains=search_query) # Search by title
+    
+    if tag_filter:
+        queryset = queryset.filter(tags__name=tag_filter)
+
+    paginator = Paginator(queryset, 6) # Show 6 documents per page
 
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+    
+    all_tags = Tag.objects.all() # For filter dropdown
 
-    return render(request, "analyzer/document_list.html", {"page_obj": page_obj})
+    return render(request, "analyzer/document_list.html", {
+        "page_obj": page_obj,
+        "all_tags": all_tags, 
+        "current_search": search_query,
+        "current_tag": tag_filter
+    })
 
 
 # Cache the analysis result for 15 minutes to improve performance
