@@ -108,17 +108,36 @@
                     <div class="tab-pane fade" id="reading">
                         <h6 class="border-bottom pb-2">Readability Scores</h6>
                         <div class="mb-3">
-                            <label>Flesch Reading Ease</label>
-                            <div class="progress" style="height: 25px;">
-                                <div class="progress-bar bg-info" role="progressbar" 
-                                     style="width: {{ metrics.reading.flesch_score }}%;" 
-                                     aria-valuenow="{{ metrics.reading.flesch_score }}" 
+                            <div class="d-flex justify-content-between">
+                                <label>Flesch Reading Ease</label>
+                                <span class="badge {% if metrics.reading.flesch_score < 30 %}bg-danger{% elif metrics.reading.flesch_score < 60 %}bg-warning text-dark{% else %}bg-success{% endif %}">
+                                    {{ metrics.reading.flesch_score }}
+                                </span>
+                            </div>
+                            <div class="progress mt-1" style="height: 25px;">
+                                <div class="progress-bar {% if metrics.reading.flesch_score < 30 %}bg-danger{% elif metrics.reading.flesch_score < 60 %}bg-warning text-dark{% else %}bg-success{% endif %}" 
+                                     role="progressbar" 
+                                     style="width: {{ metrics.reading.flesch_progress }}%;" 
+                                     aria-valuenow="{{ metrics.reading.flesch_progress }}" 
                                      aria-valuemin="0" 
                                      aria-valuemax="100">
-                                    {{ metrics.reading.flesch_score }}
                                 </div>
                             </div>
-                            <small class="text-muted">0-30: Very Confusing | 90-100: Very Easy</small>
+                            <small class="text-muted">
+                                {% if metrics.reading.flesch_score < 0 %}
+                                    <strong>Extremely Difficult:</strong> Best understood by university graduates.
+                                {% elif metrics.reading.flesch_score < 30 %}
+                                    <strong>Very Confusing:</strong> Best understood by university graduates.
+                                {% elif metrics.reading.flesch_score < 50 %}
+                                    <strong>Difficult:</strong> College level.
+                                {% elif metrics.reading.flesch_score < 60 %}
+                                    <strong>Fairly Difficult:</strong> 10th-12th grade.
+                                {% elif metrics.reading.flesch_score < 80 %}
+                                    <strong>Standard:</strong> 7th-8th grade.
+                                {% else %}
+                                    <strong>Easy:</strong> 5th-6th grade.
+                                {% endif %}
+                            </small>
                         </div>
 
                         <h6 class="border-bottom pb-2">Text Cohesion</h6>

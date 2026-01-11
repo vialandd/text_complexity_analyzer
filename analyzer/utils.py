@@ -97,6 +97,10 @@ def analyze_text_complexity(text):
 
     # --- 2. Reading & Complexity ---
     flesch_score = textstat.flesch_reading_ease(text)
+    # Round for display
+    flesch_score = round(flesch_score, 1)
+    # Clamp for progress bar (0 to 100)
+    flesch_progress = max(0, min(100, flesch_score))
     
     # Jaccard Index (Cohesion)
     total_jaccard = 0.0
@@ -264,6 +268,7 @@ def analyze_text_complexity(text):
         },
         'reading': {
             'flesch_score': flesch_score,
+            'flesch_progress': flesch_progress,
             'avg_jaccard': avg_jaccard,
             'highlighted_sentences': highlighted_sentences,
         },
