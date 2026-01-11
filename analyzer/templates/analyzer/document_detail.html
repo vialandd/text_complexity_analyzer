@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load custom_filters %}
 
 {% block content %}
 <div class="row mb-3">
@@ -201,13 +202,34 @@
                         </div>
 
                         <h6 class="border-bottom pb-2 mt-3">Named Entities Found</h6>
-                        <div class="d-flex flex-wrap gap-1">
+                        <div class="d-flex flex-wrap gap-1 mb-4">
                             {% for entity in metrics.advanced.entities %}
                                 <span class="badge bg-secondary">{{ entity }}</span>
                             {% empty %}
                                 <span class="text-muted small">No named entities detected.</span>
                             {% endfor %}
                         </div>
+
+                        <h6 class="border-bottom pb-2">Vocabulary Rarity (Vs. Standard English)</h6>
+                        <div class="row mb-3">
+                            <div class="col-4 text-center">
+                                <h4 class="text-success">{{ metrics.advanced.rarity_stats.Common }}%</h4>
+                                <small>Common<br>(Top 1k)</small>
+                            </div>
+                            <div class="col-4 text-center">
+                                <h4 class="text-warning">{{ metrics.advanced.rarity_stats.Intermediate }}%</h4>
+                                <small>Intermediate<br>(1k-5k)</small>
+                            </div>
+                            <div class="col-4 text-center">
+                                <h4 class="text-danger">{{ metrics.advanced.rarity_stats|get_item:"Advanced/Rare" }}%</h4>
+                                <small>Advanced<br>(5k+ / Unique)</small>
+                            </div>
+                        </div>
+                        {% if metrics.advanced.freq_graph %}
+                            <div class="text-center border rounded p-2 bg-white">
+                                <img src="data:image/png;base64,{{ metrics.advanced.freq_graph }}" class="img-fluid" alt="Vocabulary Rarity Chart">
+                            </div>
+                        {% endif %}
                     </div>
 
                 </div>

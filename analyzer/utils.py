@@ -44,6 +44,39 @@ try:
     nltk.data.find('corpora/words')
 except LookupError:
     nltk.download('words')
+try:
+    nltk.data.find('corpora/brown')
+except LookupError:
+    nltk.download('brown')
+
+# --- Global Frequency Data (Lazy Loading Pattern) ---
+from nltk.corpus import brown
+_WORD_RANKINGS = None
+
+def get_word_rankings():
+    """
+    Returns a dictionary mapping words to their frequency rank based on the Brown corpus.
+    Low rank = Frequent (e.g., 'the' is 1).
+    """
+    global _WORD_RANKINGS
+    if _WORD_RANKINGS is None:
+        # Build frequency distribution from Brown corpus
+        # Case insensitive to capture general usage
+        print("Building frequency distribution from Brown corpus...")
+        freq_dist = nltk.FreqDist(w.lower() for w in brown.words() if w.isalpha())
+        # Create rank map: {word: rank}
+        # most_common returns [(word, count), ...]
+        common_words = [w for w, c in freq_dist.most_common()]
+        _WORD_RANKINGS = {word: rank for rank, word in enumerate(common_words, 1)}
+    return _WORD_RANKINGS
+
+def get_word_rarity_label(rank):
+    if rank <= 1000:
+        return "Common"
+    elif rank <= 5000:
+        return "Intermediate"
+    else:
+        return "Advanced/Rare"
 
 def calculate_jaccard(sent1, sent2):
     """Calculates Jaccard similarity between two sentences."""
@@ -259,6 +292,38 @@ def analyze_text_complexity(text):
         except Exception:
             pass # NER can be fragile
 
+    # --- 5. Global Corpus Comparison (Frequency Analysis) ---
+    word_rarity_dist = {"Common": 0, "Intermediate": 0, "Advanced/Rare": 0}
+    
+    # Load rankings (cached)
+    rankings = get_word_rankings()
+    
+    for word in alpha_words:
+        # Check rank vs Brown corpus
+        rank = rankings.get(word, 999999) # Default to very rare if not in corpus
+        label = get_word_rarity_label(rank)
+        word_rarity_dist[label] += 1
+    
+    # Normalize to percentages
+    total_alpha = len(alpha_words) if alpha_words else 1
+    rarity_stats = {
+        k: round((v / total_alpha) * 100, 1) for k, v in word_rarity_dist.items()
+    }
+    
+    # Generate Rarity Bar Chart
+    freq_graph = None
+    if alpha_words:
+        plt.figure(figsize=(8, 4))
+        plt.bar(rarity_stats.keys(), rarity_stats.values(), color=['#198754', '#ffc107', '#dc3545'])
+        plt.title("Vocabulary Complexity vs. Standard English")
+        plt.ylabel("Percentage (%)")
+        buffer = BytesIO()
+        plt.savefig(buffer, format="png", bbox_inches='tight')
+        buffer.seek(0)
+        freq_graph = base64.b64encode(buffer.getvalue()).decode("utf-8")
+        buffer.close()
+        plt.close()
+
     return {
         'general': {
             'word_count': word_count,
@@ -283,6 +348,8 @@ def analyze_text_complexity(text):
             'bigrams': repeating_bigrams,
             'trigrams': repeating_trigrams,
             'entities': sorted(list(set(entities))), # Deduplicate
+            'rarity_stats': rarity_stats,
+            'freq_graph': freq_graph,
         }
     }
 
