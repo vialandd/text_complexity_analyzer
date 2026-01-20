@@ -12,10 +12,10 @@
 *   **Bootstrap 5** (UI Framework)
 
 ## Возможности
-1.  **Text Catalog**: Browse texts by category.
-2.  **Complexity Analysis**: Automatic calculation of word count and sentence count.
-3.  **Visualization**: Histogram of word length distribution for each text.
-4.  **Management**: Add new texts with tags and categories.
+1.  **Каталог текстов**: просмотр текстов по категориям.
+2.  **Анализ сложности:**: автоматический подсчёт количества слов и предложений.
+3.  **Визуализация:**: гистограмма распределения длины слов для каждого текста.
+4.  **Управление**:добавление новых текстов с тегами и категориями.
 
 ## Скриншоты
 <img width="1470" height="831" alt="image" src="https://github.com/user-attachments/assets/b9012c29-d1bc-4a9a-9365-7740b9d11dc5" />
