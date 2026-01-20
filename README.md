@@ -1,58 +1,59 @@
-# Text Complexity Analyzer
+# Анализатор сложности текста
 
-A web-based service for analyzing text complexity using basic NLP metrics and visualization. Built with Django and Pandas.
+Веб-сервис для анализа сложности текста с использованием базовых NLP-метрик и визуализации. Разработан с использованием Django и Pandas.
 
-**Live Demo:** [Link to your PythonAnywhere app]
+**Demo:** (https://text-complexity-analyzer.onrender.com)
 
-## Technologies
+## Технологии
 *   **Python 3.10+**
 *   **Django 6.0**
 *   **Pandas** (Text analysis)
 *   **Matplotlib** (Data visualization)
 *   **Bootstrap 5** (UI Framework)
 
-## Features
+## Возможности
 1.  **Text Catalog**: Browse texts by category.
 2.  **Complexity Analysis**: Automatic calculation of word count and sentence count.
 3.  **Visualization**: Histogram of word length distribution for each text.
 4.  **Management**: Add new texts with tags and categories.
 
-## Screenshots
+## Скриншоты
+<img width="1470" height="831" alt="image" src="https://github.com/user-attachments/assets/b9012c29-d1bc-4a9a-9365-7740b9d11dc5" />
+<img width="1470" height="831" alt="image" src="https://github.com/user-attachments/assets/492e8f70-5655-4f03-972c-c758cf994667" />
 
-*(Placeholder for screenshots)*
-- **Dashboard**: Lists all texts.
-- **Analysis View**: Shows text content and Matplotlib graph.
+- **Dashboard**:список всех текстов.
+- **Analysis View**:отображение текста и графика Matplotlib.
 
-## How to Run Locally
+## Запуск проекта локально
 
-1.  **Clone the repository:**
+1.  **Клонировать репозиторий:**
     ```bash
     git clone https://github.com/yourusername/text_complexity_analyzer.git
     cd text_complexity_analyzer
     ```
 
-2.  **Set up Virtual Environment:**
+2.  **Создать и активировать виртуальное окружение:**
     ```bash
     python -m venv venv
     source venv/bin/activate  # Linux/Mac
     # venv\Scripts\activate   # Windows
     ```
 
-3.  **Install Dependencies:**
+3.  **Установить зависимости:**
     ```bash
     pip install -r requirements.txt
     ```
 
-4.  **Apply Migrations and Seed Data:**
+4.  **Применить миграции и загрузить тестовые данные:**
     ```bash
     python manage.py migrate
     python manage.py seed_data
     ```
 
-5.  **Run Server:**
+5.  **Запустить сервер:**
     ```bash
     python manage.py runserver
     ```
 
-6.  **Access App:**
-    Open [http://127.0.0.1:8000](http://127.0.0.1:8000)
+6.  **Открыть приложение:**
+    Open (https://text-complexity-analyzer.onrender.com)
